@@ -3,7 +3,24 @@
 const ROUTE_ORDER = { '/': 0, '/about': 1, '/contact': 2 };
 const ROUTE_PATHS = ['/', '/about', '/contact'];
 
+function updateLayoutOffsets() {
+    const root = document.documentElement;
+    if (!root) return;
+
+    const header = document.querySelector('.header');
+    const footer = document.querySelector('.footer');
+
+    if (header) {
+        root.style.setProperty('--header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+    }
+
+    if (footer) {
+        root.style.setProperty('--footer-height', `${Math.ceil(footer.getBoundingClientRect().height)}px`);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    try { updateLayoutOffsets(); } catch (e) { console.warn('updateLayoutOffsets', e); }
     try { highlightActiveNav(); } catch (e) { console.warn('highlightActiveNav', e); }
     try { initPageTransitions(); } catch (e) { console.warn('initPageTransitions', e); }
     try { addSmoothScrolling(); } catch (e) { console.warn('addSmoothScrolling', e); }
@@ -12,6 +29,24 @@ document.addEventListener('DOMContentLoaded', function() {
     try { initProjectFilters(); } catch (e) { console.warn('initProjectFilters', e); }
     try { initProjectsHintToast(); } catch (e) { console.warn('initProjectsHintToast', e); }
     try { initContactPage(); } catch (e) { console.warn('initContactPage', e); }
+
+    let layoutResizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(layoutResizeTimeout);
+        layoutResizeTimeout = setTimeout(function() {
+            updateLayoutOffsets();
+        }, 120);
+    });
+
+    window.addEventListener('load', function() {
+        updateLayoutOffsets();
+    }, { once: true });
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function() {
+            updateLayoutOffsets();
+        });
+    }
 });
 
 function initPageTransitions() {
@@ -90,6 +125,7 @@ function runSlideTransition(targetPath, newContentHTML, goForward, fullHref) {
         main.innerHTML = '<div class="main-content-inner" id="mainContentInner">' + newContentHTML + '</div>';
         history.pushState({ path: targetPath }, '', fullHref);
         highlightActiveNav();
+        updateLayoutOffsets();
         reinitPageModules();
     }
 
@@ -129,6 +165,7 @@ function loadPageContent(path, addHistory) {
 }
 
 function reinitPageModules() {
+    try { updateLayoutOffsets(); } catch (e) { console.warn('updateLayoutOffsets', e); }
     try { addSmoothScrolling(); } catch (e) { console.warn('addSmoothScrolling', e); }
     try { initProjectCards(); } catch (e) { console.warn('initProjectCards', e); }
     try { initProjectsGallery(); } catch (e) { console.warn('initProjectsGallery', e); }

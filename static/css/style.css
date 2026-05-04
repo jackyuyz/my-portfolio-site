@@ -5,9 +5,13 @@
     box-sizing: border-box;
 }
 
-/* 默认以 90% 视觉比例打开，固定「五张卡完整可见」的布局 */
+/* Desktop global scaling: adapt overall UI density by viewport */
+:root {
+    --desktop-ui-scale: 1;
+}
+
 html {
-    zoom: 0.9;
+    zoom: var(--desktop-ui-scale);
 }
 
 :root {
@@ -29,6 +33,9 @@ html {
     --max-width: 1200px;
     --header-height: 80px;
     --footer-height: 100px;
+    /* Project card sizing controls (edit these to tune global size) */
+    --project-card-width: clamp(250px, 24vw, 330px);
+    --project-card-height: clamp(380px, 58vh, 520px);
 }
 
 body {
@@ -322,7 +329,7 @@ body {
     padding: 40px 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 
@@ -337,6 +344,9 @@ body {
     padding: 0 var(--spacing) 16px;
     margin: 0 auto;
     align-self: flex-start;
+    position: relative;
+    z-index: 2;
+    background: transparent;
 }
 
 .projects-search-wrap {
@@ -451,7 +461,7 @@ body {
     scroll-snap-type: x mandatory;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
-    padding: 30px 0;
+    padding: 18px 0 30px;
     padding-left: calc(50vw - 160px);
     padding-right: calc(50vw - 160px);
     width: 100vw;
@@ -464,8 +474,9 @@ body {
 
 /* Flip card wrapper: same size as card for gallery layout */
 .project-card-flip {
-    min-width: min(320px, calc(100vw - 48px));
-    max-width: min(320px, calc(100vw - 48px));
+    width: var(--project-card-width);
+    min-width: var(--project-card-width);
+    max-width: var(--project-card-width);
     flex-shrink: 0;
     margin: 10px 0;
     scroll-snap-align: start;
@@ -479,7 +490,7 @@ body {
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 520px;
+    min-height: var(--project-card-height);
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
@@ -1149,6 +1160,11 @@ body {
 
 /* Responsive Design - Projects: 一屏一张卡，避免裁切 */
 @media (max-width: 1024px) {
+    :root {
+        --project-card-width: clamp(240px, 54vw, 320px);
+        --project-card-height: clamp(320px, 55vh, 440px);
+    }
+
     .projects-gallery-section {
         width: 100%;
         margin-left: 0;
@@ -1160,9 +1176,8 @@ body {
         padding-right: 16px;
     }
 
-    .project-card-flip {
-        min-width: calc(100vw - 32px);
-        max-width: calc(100vw - 32px);
+    .projects-filter-bar {
+        padding-bottom: 12px;
     }
 }
 
@@ -1170,6 +1185,8 @@ body {
     :root {
         --header-height: 120px; /* 移动端 header 更高 */
         --footer-height: 120px; /* 移动端 footer 更高 */
+        --project-card-width: clamp(220px, calc(100vw - 38px), 300px);
+        --project-card-height: clamp(290px, 50vh, 400px);
     }
 
     .header-content {
@@ -1180,6 +1197,47 @@ body {
     .nav {
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .projects-filter-bar {
+        gap: 10px;
+        padding: 0 16px 12px;
+    }
+
+    .projects-search-wrap {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+
+    .projects-label-chips {
+        width: 100%;
+    }
+
+    .project-info {
+        padding: 16px;
+    }
+
+    .project-title {
+        font-size: 1.08rem;
+        line-height: 1.25;
+    }
+
+    .project-tech {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+
+    .project-description {
+        font-size: 0.84rem;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .project-date {
+        font-size: 0.76rem;
     }
 
     .gallery-controls {
@@ -1256,6 +1314,8 @@ body {
     :root {
         --header-height: 130px; /* 小屏幕 header 更高 */
         --footer-height: 130px; /* 小屏幕 footer 更高 */
+        --project-card-width: clamp(200px, calc(100vw - 32px), 276px);
+        --project-card-height: clamp(250px, 46vh, 340px);
     }
 
     .container {
@@ -1274,8 +1334,118 @@ body {
         gap: 16px;
     }
 
+    .projects-filter-bar {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .project-info {
+        padding: 14px;
+    }
+
+    .project-title {
+        font-size: 1rem;
+    }
+
+    .project-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 4;
+    }
+
     .gform-embed {
         min-height: 589px;
         height: 589px;
+    }
+}
+
+/* Extra shrinking for short desktop/laptop windows */
+@media (max-height: 820px) and (min-width: 769px) {
+    :root {
+        --project-card-height: clamp(250px, 42vh, 340px);
+    }
+
+    .projects-gallery {
+        padding-top: 18px;
+        padding-bottom: 18px;
+    }
+
+    .projects-filter-bar {
+        padding-bottom: 10px;
+    }
+
+    .project-description {
+        -webkit-line-clamp: 4;
+    }
+}
+
+@media (max-height: 700px) and (min-width: 769px) {
+    :root {
+        --desktop-ui-scale: 0.82;
+        --project-card-height: clamp(220px, 38vh, 300px);
+    }
+
+    .projects-gallery-wrapper {
+        padding-top: 24px;
+        padding-bottom: 16px;
+    }
+
+    .project-info {
+        padding: 12px;
+    }
+
+    .project-title {
+        font-size: 0.96rem;
+    }
+
+    .project-tech {
+        font-size: 0.76rem;
+    }
+
+    .project-description {
+        font-size: 0.78rem;
+        line-height: 1.35;
+        -webkit-line-clamp: 3;
+    }
+
+    .gallery-controls {
+        margin-top: 16px;
+    }
+}
+
+/* Global desktop shrink for laptop-size screens */
+@media (max-width: 1920px) and (min-width: 769px) {
+    :root {
+        --desktop-ui-scale: 0.96;
+    }
+}
+
+@media (max-width: 1600px) and (min-width: 769px) {
+    :root {
+        --desktop-ui-scale: 0.92;
+    }
+}
+
+@media (max-width: 1440px) and (min-width: 769px), (max-height: 900px) and (min-width: 769px) {
+    :root {
+        --desktop-ui-scale: 0.88;
+    }
+}
+
+@media (max-width: 1366px) and (min-width: 769px), (max-height: 820px) and (min-width: 769px) {
+    :root {
+        --desktop-ui-scale: 0.84;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+    :root {
+        --desktop-ui-scale: 0.8;
+    }
+}
+
+/* Keep mobile/tablet behavior unchanged */
+@media (max-width: 768px) {
+    :root {
+        --desktop-ui-scale: 1;
     }
 }
