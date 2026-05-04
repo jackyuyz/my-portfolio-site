@@ -533,6 +533,9 @@ function initProjectFilters() {
     const searchInput = document.getElementById('projectsSearchInput');
     const chipsContainer = document.getElementById('projectsLabelChips');
     if (!gallery || !chipsContainer) return;
+    const filterBar = document.getElementById('projectsFilterBar');
+    const CHIPS_TOGGLE_DOWN_ICON = 'https://img.icons8.com/?size=100&id=37319&format=png&color=000000';
+    const CHIPS_TOGGLE_UP_ICON = 'https://img.icons8.com/?size=100&id=37322&format=png&color=000000';
     
     const cards = gallery.querySelectorAll('.project-card-flip');
     function getCardTags(card) {
@@ -585,6 +588,57 @@ function initProjectFilters() {
     tagList.forEach(function(tag) {
         addChip(tag, false);
     });
+
+    var chipsExpanded = false;
+    var chipsToggleBtn = document.getElementById('projectsChipsToggle');
+    var chipsToggleIcon;
+    if (!chipsToggleBtn) {
+        chipsToggleBtn = document.createElement('button');
+        chipsToggleBtn.type = 'button';
+        chipsToggleBtn.id = 'projectsChipsToggle';
+        chipsToggleBtn.className = 'projects-chips-toggle';
+        chipsToggleBtn.setAttribute('aria-expanded', 'false');
+        chipsToggleBtn.innerHTML = '<img class="projects-chips-toggle-icon" alt="" />';
+        chipsToggleIcon = chipsToggleBtn.querySelector('.projects-chips-toggle-icon');
+        if (chipsToggleIcon) chipsToggleIcon.src = CHIPS_TOGGLE_DOWN_ICON;
+        chipsToggleBtn.setAttribute('aria-label', 'Show more tags');
+        chipsToggleBtn.title = 'Show more tags';
+        if (filterBar) filterBar.appendChild(chipsToggleBtn);
+    } else {
+        chipsToggleIcon = chipsToggleBtn.querySelector('.projects-chips-toggle-icon');
+        if (!chipsToggleIcon) {
+            chipsToggleBtn.innerHTML = '<img class="projects-chips-toggle-icon" alt="" />';
+            chipsToggleIcon = chipsToggleBtn.querySelector('.projects-chips-toggle-icon');
+        }
+    }
+
+    function getChipRows() {
+        var rowSet = {};
+        chipsContainer.querySelectorAll('.project-label-chip').forEach(function(chip) {
+            rowSet[Math.round(chip.offsetTop)] = true;
+        });
+        return Object.keys(rowSet).length;
+    }
+
+    function updateChipsToggle() {
+        var hasOverflow = getChipRows() > 2;
+        chipsToggleBtn.classList.toggle('visible', hasOverflow);
+        if (!hasOverflow) {
+            chipsExpanded = false;
+        }
+        chipsContainer.classList.toggle('collapsed', hasOverflow && !chipsExpanded);
+        chipsToggleBtn.setAttribute('aria-expanded', String(chipsExpanded));
+        if (chipsToggleIcon) {
+            chipsToggleIcon.src = chipsExpanded ? CHIPS_TOGGLE_UP_ICON : CHIPS_TOGGLE_DOWN_ICON;
+        }
+        chipsToggleBtn.setAttribute('aria-label', chipsExpanded ? 'Show less tags' : 'Show more tags');
+        chipsToggleBtn.title = chipsExpanded ? 'Show less tags' : 'Show more tags';
+    }
+
+    chipsToggleBtn.addEventListener('click', function() {
+        chipsExpanded = !chipsExpanded;
+        updateChipsToggle();
+    });
     
     var clearBtn = document.getElementById('projectsSearchClear');
     function updateClearVisibility() {
@@ -608,6 +662,18 @@ function initProjectFilters() {
             }
         });
     }
+
+    var chipResizeTimeout;
+    if (window.__projectChipsResizeHandler) {
+        window.removeEventListener('resize', window.__projectChipsResizeHandler);
+    }
+    window.__projectChipsResizeHandler = function() {
+        if (!document.body.contains(chipsContainer)) return;
+        clearTimeout(chipResizeTimeout);
+        chipResizeTimeout = setTimeout(updateChipsToggle, 120);
+    };
+    window.addEventListener('resize', window.__projectChipsResizeHandler);
+    setTimeout(updateChipsToggle, 0);
     
     function applyFilter() {
         var selectedTags = {};
@@ -632,6 +698,7 @@ function initProjectFilters() {
             }
         });
         window.dispatchEvent(new CustomEvent('projectFilterChange'));
+        updateChipsToggle();
     }
 }
 
