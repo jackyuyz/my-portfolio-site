@@ -41,6 +41,71 @@ my-portfolio-site/
 
 Visit the live website at: **[jackyudev.com](https://jackyudev.com)**
 
+## Run Locally
+
+### Prerequisites
+
+- Python 3.10+ installed
+- PowerShell (Windows) or Terminal (macOS/Linux)
+
+### 1) Create and activate a virtual environment
+
+**Windows (PowerShell)**
+
+```powershell
+py -3 -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks script execution, run this first in the same terminal, then activate again:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 2) Install dependencies
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### 3) Start the app
+
+```bash
+python main.py
+```
+
+The app will run on:
+
+- `http://localhost:8003`
+- `http://127.0.0.1:8003`
+
+Note: Uvicorn may print `http://0.0.0.0:8003` in terminal logs. Open `localhost` or `127.0.0.1` in your browser instead.
+
+### Windows fallback (without activating venv)
+
+If activation still fails, you can run everything with the virtual environment's Python directly:
+
+```powershell
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe main.py
+```
+
+### Optional: use the provided script (macOS/Linux)
+
+You can also start with:
+
+```bash
+./run.sh
+```
+
 ## Customization
 
 ### Adding Projects
